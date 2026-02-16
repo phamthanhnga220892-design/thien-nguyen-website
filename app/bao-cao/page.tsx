@@ -2,18 +2,19 @@ import React from 'react';
 import { FileText, Download, Calendar, Eye, ShieldCheck, Clock } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 
+import dbConnect from '@/lib/mongodb';
+import Report from '@/models/Report';
+
 export default async function FinancialReportsPage() {
-    // Fetch reports from API
+    // Fetch reports directly from DB
     let reports: any[] = [];
     try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/reports`, {
-            cache: 'no-store'
-        });
-        if (response.ok) {
-            const data = await response.json();
-            reports = data.data || [];
-        }
+        await dbConnect();
+        const reportsData = await Report.find({})
+            .sort({ year: -1, month: -1, createdAt: -1 })
+            .lean();
+
+        reports = JSON.parse(JSON.stringify(reportsData));
     } catch (error) {
         console.error('Error fetching reports:', error);
     }

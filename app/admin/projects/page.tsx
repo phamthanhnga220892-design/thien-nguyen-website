@@ -3,19 +3,23 @@ import Link from 'next/link';
 import { Plus, Search, Eye, Edit } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
+import dbConnect from '@/lib/mongodb';
+import Project from '@/models/Project';
+
 async function getProjects() {
     try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/projects?limit=100`, {
-            cache: 'no-store'
-        });
+        await dbConnect();
+        const projects = await Project.find({})
+            .sort({ createdAt: -1 })
+            .limit(100)
+            .lean();
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch projects');
-        }
-
-        const data = await response.json();
-        return data.data || [];
+        // Serialize _id and other objectIds to strings to avoid "Only plain objects can be passed to Client Components" warning/error if these are passed down, 
+        // though strictly for Server Components rendering it might be fine, but .lean() helps. 
+        // We might need to map them if serialization issues arise, but .lean() usually handles the Mongoose document overhead. 
+        // However, standard Mongoose .lean() returns ObjectIds, which Next.js can sometimes struggle with if passed to client components. 
+        // Safe bet is to map.
+        return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error('Error fetching projects:', error);
         return [];

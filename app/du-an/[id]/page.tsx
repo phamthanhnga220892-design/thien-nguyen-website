@@ -6,19 +6,16 @@ import Breadcrumb from '@/components/Breadcrumb';
 import ProjectCard from '@/components/ProjectCard';
 import { notFound } from 'next/navigation';
 
+import dbConnect from '@/lib/mongodb';
+import Project from '@/models/Project';
+
 async function getProject(id: string) {
     try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/projects/${id}`, {
-            cache: 'no-store'
-        });
+        await dbConnect();
+        const project = await Project.findById(id).lean();
 
-        if (!response.ok) {
-            return null;
-        }
-
-        const result = await response.json();
-        return result.data;
+        if (!project) return null;
+        return JSON.parse(JSON.stringify(project));
     } catch (error) {
         console.error('Error fetching project:', error);
         return null;
@@ -27,21 +24,15 @@ async function getProject(id: string) {
 
 async function getRelatedProjects(currentId: string, status: string) {
     try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/projects?limit=100`, {
-            cache: 'no-store'
-        });
+        await dbConnect();
+        const projects = await Project.find({
+            _id: { $ne: currentId },
+            status: status
+        })
+            .limit(3)
+            .lean();
 
-        if (!response.ok) {
-            return [];
-        }
-
-        const result = await response.json();
-        const projects = result.data || [];
-
-        return projects
-            .filter((p: any) => p._id !== currentId && p.status === status)
-            .slice(0, 3);
+        return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error('Error fetching related projects:', error);
         return [];

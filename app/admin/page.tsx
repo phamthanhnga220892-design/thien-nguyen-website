@@ -12,23 +12,25 @@ import {
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 
+import dbConnect from '@/lib/mongodb';
+import Project from '@/models/Project';
+import Report from '@/models/Report';
+
 async function getDashboardData() {
     try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+        await dbConnect();
 
         // Fetch projects
-        const projectsRes = await fetch(`${baseUrl}/api/projects?limit=100`, {
-            cache: 'no-store'
-        });
-        const projectsData = await projectsRes.json();
-        const projects = projectsData.data || [];
+        const projects = await Project.find({})
+            .sort({ createdAt: -1 })
+            .limit(100)
+            .lean();
 
         // Fetch reports
-        const reportsRes = await fetch(`${baseUrl}/api/reports?limit=100`, {
-            cache: 'no-store'
-        });
-        const reportsData = await reportsRes.json();
-        const reports = reportsData.data || [];
+        const reports = await Report.find({})
+            .sort({ year: -1, month: -1, createdAt: -1 })
+            .limit(100)
+            .lean();
 
         // Calculate stats
         const totalProjects = projects.length;
@@ -36,6 +38,7 @@ async function getDashboardData() {
         const totalDonated = projects.reduce((sum: number, p: any) => sum + (p.totalDonated || 0), 0);
         const totalReports = reports.length;
 
+        // Serialize data
         return {
             stats: {
                 totalProjects,
@@ -43,8 +46,8 @@ async function getDashboardData() {
                 totalDonated,
                 totalReports,
             },
-            recentProjects: projects.slice(0, 5),
-            recentReports: reports.slice(0, 3),
+            recentProjects: JSON.parse(JSON.stringify(projects.slice(0, 5))),
+            recentReports: JSON.parse(JSON.stringify(reports.slice(0, 3))),
         };
     } catch (error) {
         console.error('Error fetching dashboard data:', error);

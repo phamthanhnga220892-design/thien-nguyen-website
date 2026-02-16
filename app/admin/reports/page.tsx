@@ -3,19 +3,18 @@ import Link from 'next/link';
 import { Plus, Search, FileText, Image as ImageIcon, Calendar, Edit, Eye } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
+import dbConnect from '@/lib/mongodb';
+import Report from '@/models/Report';
+
 async function getReports() {
     try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/reports?limit=100`, {
-            cache: 'no-store'
-        });
+        await dbConnect();
+        const reports = await Report.find({})
+            .sort({ year: -1, month: -1, createdAt: -1 })
+            .limit(100)
+            .lean();
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch reports');
-        }
-
-        const data = await response.json();
-        return data.data || [];
+        return JSON.parse(JSON.stringify(reports));
     } catch (error) {
         console.error('Error fetching reports:', error);
         return [];

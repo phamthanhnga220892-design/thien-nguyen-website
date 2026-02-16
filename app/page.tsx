@@ -4,19 +4,18 @@ import ProjectCard from "@/components/ProjectCard";
 import CTASection from "@/components/CTASection";
 import { ShieldCheck, Users, HandHeart, Heart, ChevronRight } from 'lucide-react';
 
+import dbConnect from '@/lib/mongodb';
+import Project from '@/models/Project';
+
 async function getProjects() {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/projects?limit=100`, {
-      cache: 'no-store'
-    });
+    await dbConnect();
+    const projects = await Project.find({})
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean();
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch projects');
-    }
-
-    const data = await response.json();
-    return data.data || [];
+    return JSON.parse(JSON.stringify(projects));
   } catch (error) {
     console.error('Error fetching projects:', error);
     return [];
