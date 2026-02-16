@@ -2,12 +2,6 @@ import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error(
-    'Vui lòng thêm MONGODB_URI vào file .env.local'
-  );
-}
-
 /**
  * Global is used here to maintain a cached connection across hot reloads
  * in development. This prevents connections growing exponentially
@@ -33,12 +27,18 @@ async function dbConnect(): Promise<typeof mongoose> {
     return cached.conn;
   }
 
+  if (!MONGODB_URI) {
+    throw new Error(
+      'Vui lòng thêm MONGODB_URI vào file .env.local'
+    );
+  }
+
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('✅ Kết nối MongoDB thành công! Database: thien-nguyen-db');
       return mongoose;
     });
