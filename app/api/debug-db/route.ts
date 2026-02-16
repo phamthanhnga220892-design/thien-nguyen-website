@@ -13,11 +13,13 @@ export async function GET() {
     const status = {
         envVar: {
             defined: isDefined,
-            value: maskedUri
+            value: maskedUri,
+            allKeys: Object.keys(process.env).sort()
         },
         mongoose: {
             readyState: mongoose.connection.readyState,
-            readyStateText: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+            readyStateText: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown',
+            dbName: mongoose.connection.name
         },
         connectionError: null as any,
         testQuery: null as any
