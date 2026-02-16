@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Lapis Blue Color Palette */
+  --color-lapis-50: #f0f9ff;
+  --color-lapis-100: #e0f2fe;
+  --color-lapis-200: #bae6fd;
+  --color-lapis-300: #7dd3fc;
+  --color-lapis-400: #38bdf8;
+  --color-lapis-500: #0ea5e9;
+  --color-lapis-600: #0284c7;
+  --color-lapis-700: #0369a1;
+  --color-lapis-800: #075985;
+  --color-lapis-900: #0c4a6e;
+  --color-lapis-950: #082f49;
+
+  /* Amber Gold Color Palette */
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  /* Font Families */
+  --font-display: 'Playfair Display', serif;
+  --font-sans: 'Be Vietnam Pro', sans-serif;
+}
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  scroll-behavior: smooth;
+  background-color: #fffdfa;
+  color: #1f2937;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #0284c7 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
