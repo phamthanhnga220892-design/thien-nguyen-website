@@ -5,6 +5,8 @@ import Breadcrumb from '@/components/Breadcrumb';
 import dbConnect from '@/lib/mongodb';
 import Report from '@/models/Report';
 
+export const dynamic = 'force-dynamic';
+
 export default async function FinancialReportsPage() {
     // Fetch reports directly from DB
     let reports: any[] = [];

@@ -7,6 +7,8 @@ import { ShieldCheck, Users, HandHeart, Heart, ChevronRight } from 'lucide-react
 import dbConnect from '@/lib/mongodb';
 import Project from '@/models/Project';
 
+export const dynamic = 'force-dynamic';
+
 async function getProjects() {
   try {
     await dbConnect();
