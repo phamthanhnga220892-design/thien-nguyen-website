@@ -50,7 +50,7 @@ export default function FileUpload({
 
             const formData = new FormData();
             formData.append('file', selectedFile);
-            formData.append('folder', 'thien-nguyen/reports');
+            formData.append('folder', 'reports');
 
             const response = await fetch('/api/upload', {
                 method: 'POST',
@@ -58,7 +58,8 @@ export default function FileUpload({
             });
 
             if (!response.ok) {
-                throw new Error('Upload thất bại');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Upload thất bại');
             }
 
             const data = await response.json();

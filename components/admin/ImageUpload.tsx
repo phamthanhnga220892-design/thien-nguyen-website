@@ -43,7 +43,7 @@ export default function ImageUpload({
 
                 const formData = new FormData();
                 formData.append('file', file);
-                formData.append('folder', 'thien-nguyen/projects');
+                formData.append('folder', 'projects');
 
                 const response = await fetch('/api/upload', {
                     method: 'POST',
@@ -51,7 +51,8 @@ export default function ImageUpload({
                 });
 
                 if (!response.ok) {
-                    throw new Error('Upload thất bại');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Upload thất bại');
                 }
 
                 const data = await response.json();
