@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    const uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGODB_URI || process.env.MONGO_URL;
     const isDefined = !!uri;
     // Mask the password for security in response
     const maskedUri = uri ? uri.replace(/:([^@]+)@/, ':****@') : 'undefined';
@@ -15,6 +15,11 @@ export async function GET() {
             defined: isDefined,
             value: maskedUri,
             allKeys: Object.keys(process.env).sort()
+        },
+        context: {
+            vercelEnv: process.env.VERCEL_ENV,
+            nodeEnv: process.env.NODE_ENV,
+            vercelUrl: process.env.VERCEL_URL
         },
         mongoose: {
             readyState: mongoose.connection.readyState,

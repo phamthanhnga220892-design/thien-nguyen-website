@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL;
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -29,7 +29,7 @@ async function dbConnect(): Promise<typeof mongoose> {
 
   if (!MONGODB_URI) {
     throw new Error(
-      'Vui lòng thêm MONGODB_URI vào file .env.local'
+      'Vui lòng thêm MONGODB_URI hoặc MONGO_URL vào biến môi trường'
     );
   }
 
