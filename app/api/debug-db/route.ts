@@ -19,7 +19,9 @@ export async function GET() {
         context: {
             vercelEnv: process.env.VERCEL_ENV,
             nodeEnv: process.env.NODE_ENV,
-            vercelUrl: process.env.VERCEL_URL
+            vercelUrl: process.env.VERCEL_URL,
+            projectName: process.env.VERCEL_PROJECT_NAME,
+            repoSlug: process.env.VERCEL_GIT_REPO_SLUG
         },
         mongoose: {
             readyState: mongoose.connection.readyState,
