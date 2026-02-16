@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(request: NextRequest) {
     try {
@@ -36,49 +41,34 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate file type
-        const allowedTypes = [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/webp',
-            'image/gif',
-            'application/pdf'
-        ];
-
-        if (!allowedTypes.includes(file.type)) {
-            return NextResponse.json(
-                { error: 'Invalid file type. Only images and PDFs are allowed.' },
-                { status: 400 }
-            );
-        }
-
-        // Generate unique filename
-        const timestamp = Date.now();
-        const randomString = Math.random().toString(36).substring(2, 15);
-        const extension = file.name.split('.').pop();
-        const filename = `${timestamp}-${randomString}.${extension}`;
-
-        // Create upload directory if it doesn't exist
-        const uploadDir = join(process.cwd(), 'public', 'uploads', folder);
-        if (!existsSync(uploadDir)) {
-            await mkdir(uploadDir, { recursive: true });
-        }
-
-        // Save file
+        // Convert file to buffer
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const filepath = join(uploadDir, filename);
-        await writeFile(filepath, buffer);
 
-        // Return URL
-        const url = `/uploads/${folder}/${filename}`;
-        const fileType = file.type.startsWith('image/') ? 'image' : 'pdf';
+        // Upload to Cloudinary using a stream
+        const result = await new Promise<any>((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: `thien-nguyen/${folder}`,
+                    resource_type: 'auto', // Auto-detect image or raw (pdf)
+                },
+                (error, result) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                }
+            );
+
+            // Write buffer to stream
+            uploadStream.end(buffer);
+        });
 
         return NextResponse.json({
-            url,
-            publicId: filename, // For compatibility with Cloudinary structure
-            fileType,
+            url: result.secure_url,
+            publicId: result.public_id,
+            fileType: result.resource_type,
             message: 'File uploaded successfully'
         });
 
